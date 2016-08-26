@@ -19,6 +19,7 @@ public:
 private:
 	// Oh cool the params don't need names
 	bool CheckCollide(float, float, std::vector<Point>);
+	void Reset();
 	Point center;
 	Grid* grid;
 	std::vector<Point> offsets;

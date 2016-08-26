@@ -19,6 +19,11 @@ Block::Block(Grid* grid) :
 	last_drop_time(0),
 	grid {grid}
 {
+	Reset();
+}
+
+void Block::Reset()
+{
 	BlockShape shape = BlockShapes[rand() % BlockShapes.size()];
 	center = {shape.origin_offset.x + 5, shape.origin_offset.y + 1};
 	offsets = shape.offsets;
@@ -37,6 +42,10 @@ void Block::Update(Uint32 ticks)
 		else 
 		{
 			// Set blocks in grid.
+			std::for_each(offsets.begin(), offsets.end(), [&] (Point p) {
+				grid->SetVal(center.x + p.x - BlockCenterOffset, center.y + p.y - BlockCenterOffset, color);
+			});
+			Reset();
 		}
 	}
 }
@@ -47,13 +56,13 @@ void Block::Render(SDL_Renderer* renderer)
 	SDL_SetRenderDrawColor(renderer, color_values.r, color_values.g, color_values.b, 0xFF);
 
 	std::vector<Point>::iterator it;
-	SDL_Rect cellRect;
+	SDL_Rect cell_rect;
 
 	for (it = offsets.begin(); it != offsets.end(); it++)
 	{	
-		cellRect = {(center.x + it->x - BlockCenterOffset) * Grid::CellDimension, (center.y + it->y - BlockCenterOffset)
+		cell_rect = {(center.x + it->x - BlockCenterOffset) * Grid::CellDimension, (center.y + it->y - BlockCenterOffset)
 		 * Grid::CellDimension, Grid::CellDimension, Grid::CellDimension};
-		SDL_RenderFillRect(renderer, &cellRect);
+		SDL_RenderFillRect(renderer, &cell_rect);
 	}
 }
 
@@ -64,7 +73,7 @@ bool Block::CheckCollide(float x, float y, std::vector<Point> offsets_to_check)
 	{
 		int currX = x + it->x - BlockCenterOffset;
 		int currY = y + it->y - BlockCenterOffset;
-		if (!grid->InGridBounds(currX, currY) || grid->GetVal(currX, currY) != 0)
+		if (!grid->InGridBounds(currX, currY) || grid->GetVal(currX, currY) != -1)
 		{
 			return true;
 		}

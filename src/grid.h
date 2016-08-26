@@ -9,6 +9,7 @@ public:
 	void Render(SDL_Renderer*);
 	void Update(Uint32);
 	int GetVal(int, int);
+	void SetVal(int, int, int);
 	bool InGridBounds(int, int);
 	// works just like statics in other languages. shared by all instances
 	static int CellDimension;
