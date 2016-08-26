@@ -34,26 +34,13 @@ void Block::Update(Uint32 ticks)
 {
 	if (ticks >= last_drop_time + MillisPerDrop)
 	{
-		if (!CheckCollide(center.x, center.y + 1, offsets))
-		{
-			center.y += 1;
-			last_drop_time = ticks;
-		}
-		else 
-		{
-			// Set blocks in grid.
-			std::for_each(offsets.begin(), offsets.end(), [&] (Point p) {
-				grid->SetVal(center.x + p.x - BlockCenterOffset, center.y + p.y - BlockCenterOffset, color);
-			});
-			Reset();
-		}
+		Drop(ticks);
 	}
 }
 
 void Block::Render(SDL_Renderer* renderer)
  {
  	ColorValues color_values = ColorMap[color];
-	SDL_SetRenderDrawColor(renderer, color_values.r, color_values.g, color_values.b, 0xFF);
 
 	std::vector<Point>::iterator it;
 	SDL_Rect cell_rect;
@@ -62,6 +49,7 @@ void Block::Render(SDL_Renderer* renderer)
 	{	
 		cell_rect = {(center.x + it->x - BlockCenterOffset) * Grid::CellDimension, (center.y + it->y - BlockCenterOffset)
 		 * Grid::CellDimension, Grid::CellDimension, Grid::CellDimension};
+		SDL_SetRenderDrawColor(renderer, color_values.r, color_values.g, color_values.b, 0xFF);
 		SDL_RenderFillRect(renderer, &cell_rect);
 	}
 }
@@ -96,8 +84,20 @@ void Block::Rotate()
 	}
 }
 
-void Block::Drop()
+void Block::Drop(Uint32 ticks)
 {
 	if (!CheckCollide(center.x, center.y + 1, offsets))
-		center.y++;
+	{
+		center.y += 1;
+		last_drop_time = ticks;
+	}
+	else 
+	{
+		// Set blocks in grid.
+		std::for_each(offsets.begin(), offsets.end(), [&] (Point p) {
+			grid->SetVal(center.x + p.x - BlockCenterOffset, center.y + p.y - BlockCenterOffset, color);
+		});
+		grid->ClearIfNecessary();
+		Reset();
+	}
 }

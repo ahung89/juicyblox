@@ -14,7 +14,7 @@ public:
 	void Update(Uint32);
 	void Render(SDL_Renderer*);
 	void Rotate();
-	void Drop();
+	void Drop(Uint32);
 	void MoveLaterally(int);
 private:
 	// Oh cool the params don't need names

@@ -99,7 +99,7 @@ void HandleInput(Block &block)
 					break;
 				
 				case SDLK_DOWN:
-					block.Drop();
+					block.Drop(SDL_GetTicks());
 					break;
 			}
 		}
