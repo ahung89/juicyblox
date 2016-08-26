@@ -6,6 +6,7 @@
 #include <game_object.h>
 #include <block_shape.h>
 #include <point.h>
+#include <util/color.h>
 
 class Block : public IGameObject  {
 public:
@@ -21,5 +22,6 @@ private:
 	Point center;
 	Grid* grid;
 	std::vector<Point> offsets;
+	Color color;
 	int last_drop_time;
 };

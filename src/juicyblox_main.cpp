@@ -101,7 +101,6 @@ void HandleInput(Block &block)
 				case SDLK_DOWN:
 					block.Drop();
 					break;
-				
 			}
 		}
 	}

@@ -5,13 +5,13 @@
 
 static int MillisPerDrop = 800;
 static std::vector<BlockShape> BlockShapes = {
-	{{0, 0}, {{-1.5, -.5}, {-.5, -.5}, {.5, -.5}, {1.5, -.5}}}, // Line
-	{{.5, .5}, {{-1, -1}, {-1, 0}, {0, 0}, {1, 0}}},            // L
-	{{.5, .5}, {{-1, 0}, {0, 0}, {1, 0}, {1, -1}}},             // Reverse L
-	{{0, 0}, {{-.5, -.5}, {-.5, .5}, {.5, -.5}, {.5, .5}}},     // Square
-	{{.5, .5}, {{-1, 0}, {0, 0}, {0, -1}, {1, -1}}},            // Tut
-	{{.5, .5}, {{-1, 0}, {0, 0}, {0, -1}, {1, 0}}},             // Hat
-	{{.5, .5}, {{-1, -1}, {0, -1}, {0, 0}, {1, 0}}}             // Reverse Tut
+	{{0, 0}, {{-1.5, -.5}, {-.5, -.5}, {.5, -.5}, {1.5, -.5}}, Color::LightBlue}, // Line
+	{{.5, .5}, {{-1, -1}, {-1, 0}, {0, 0}, {1, 0}}, Color::DarkBlue},             // L
+	{{.5, .5}, {{-1, 0}, {0, 0}, {1, 0}, {1, -1}}, Color::Orange},                // Reverse L
+	{{0, 0}, {{-.5, -.5}, {-.5, .5}, {.5, -.5}, {.5, .5}}, Color::Yellow},        // Square
+	{{.5, .5}, {{-1, 0}, {0, 0}, {0, -1}, {1, -1}}, Color::Green},                // Tut
+	{{.5, .5}, {{-1, 0}, {0, 0}, {0, -1}, {1, 0}}, Color::Purple},                // Hat
+	{{.5, .5}, {{-1, -1}, {0, -1}, {0, 0}, {1, 0}}, Color::Red}                   // Reverse Tut
 };
 static float BlockCenterOffset = .5;
 
@@ -22,6 +22,7 @@ Block::Block(Grid* grid) :
 	BlockShape shape = BlockShapes[rand() % BlockShapes.size()];
 	center = {shape.origin_offset.x + 5, shape.origin_offset.y + 1};
 	offsets = shape.offsets;
+	color = shape.color;
 }
 
 void Block::Update(Uint32 ticks)
@@ -42,7 +43,8 @@ void Block::Update(Uint32 ticks)
 
 void Block::Render(SDL_Renderer* renderer)
  {
-	SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
+ 	ColorValues color_values = ColorMap[color];
+	SDL_SetRenderDrawColor(renderer, color_values.r, color_values.g, color_values.b, 0xFF);
 
 	std::vector<Point>::iterator it;
 	SDL_Rect cellRect;
