@@ -4,6 +4,8 @@
 #include <grid.h>
 #include <vector>
 #include <game_object.h>
+#include <block_shape.h>
+#include <point.h>
 
 class Block : public IGameObject  {
 public:
@@ -11,13 +13,13 @@ public:
 	void Update(Uint32);
 	void Render(SDL_Renderer*);
 	void Rotate();
+	void Drop();
 	void MoveLaterally(int);
-	static int MillisPerDrop;
 private:
 	// Oh cool the params don't need names
-	bool CheckCollide(int, int, std::vector<SDL_Point>);
-	SDL_Point pos;
+	bool CheckCollide(float, float, std::vector<Point>);
+	Point center;
 	Grid* grid;
-	std::vector<SDL_Point> offsets;
+	std::vector<Point> offsets;
 	int last_drop_time;
 };

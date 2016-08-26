@@ -21,5 +21,5 @@ grid.o : src/grid.cpp src/grid.h src/constants.h
 constants.o : src/constants.cpp src/constants.h
 	$(CC) $(INCLUDE_PATHS) $(COMPILER_FLAGS) -c src/constants.cpp
 
-block.o : src/block.cpp src/block.h
+block.o : src/block.cpp src/block.h src/block_shape.h src/game_object.h src/point.h
 	$(CC) $(INCLUDE_PATHS) $(COMPILER_FLAGS) -c src/block.cpp

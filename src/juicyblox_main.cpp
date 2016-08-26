@@ -4,22 +4,23 @@
 #include <block.h>
 #include <constants.h>
 #include <game_object.h>
-#include <algorithm>
+#include <algorithm> // for_each
+#include <stdlib.h>
+#include <time.h>
 #include <vector>
 
 // Must be a vec of pointers - can't have an abstract class as the type (why?)
-typedef std::vector<IGameObject*> obj_vec;
+using GameObjectVector =  std::vector<IGameObject*>;
 
 static SDL_Window* window = nullptr;
 static SDL_Renderer* renderer = nullptr;
 static bool quit = false;
-static bool key_lifted = true;
 
 void Init();
 void ClearScreen();
 void HandleInput(Block &block);
-void Update(obj_vec game_objects);
-void Render(obj_vec game_objects);
+void Update(GameObjectVector game_objects);
+void Render(GameObjectVector game_objects);
 
 int main(int argc, char* args[]) 
 {
@@ -33,7 +34,7 @@ int main(int argc, char* args[])
 
 		Grid grid;
 		Block block {&grid};
-		obj_vec game_objects {&block, &grid};
+		GameObjectVector game_objects {&block, &grid};
 
 		while (!quit) 
 		{
@@ -52,18 +53,19 @@ int main(int argc, char* args[])
 
 void Init()
 {
+	srand (time(NULL));
 	window = SDL_CreateWindow("JuicyBlox", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
 		SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
 	renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 }
 
-void Update(obj_vec game_objects)
+void Update(GameObjectVector game_objects)
 {
 	Uint32 ticks = SDL_GetTicks();
 	std::for_each(game_objects.begin(), game_objects.end(), [&] (IGameObject* obj) { obj->Update(ticks); });
 }
 
-void Render(obj_vec game_objects) 
+void Render(GameObjectVector game_objects) 
 {
 	ClearScreen();
 	std::for_each(game_objects.begin(), game_objects.end(), [] (IGameObject* obj) { obj->Render(renderer); });
@@ -80,20 +82,27 @@ void HandleInput(Block &block)
 		{
 			quit = true;
 		} 
-		else if (e.type == SDL_KEYDOWN && key_lifted)
+		else if (e.type == SDL_KEYDOWN)
 		{
-			key_lifted = false;
-			if (e.key.keysym.sym == SDLK_LEFT)
+			switch (e.key.keysym.sym)
 			{
-				block.MoveLaterally(-1);
-			} 
-			else if (e.key.keysym.sym == SDLK_RIGHT) 
-			{
-				block.MoveLaterally(1);
+				case SDLK_LEFT:
+					block.MoveLaterally(-1);
+					break;
+
+				case SDLK_RIGHT:
+					block.MoveLaterally(1);
+					break;
+				
+				case SDLK_UP:
+					block.Rotate();
+					break;
+				
+				case SDLK_DOWN:
+					block.Drop();
+					break;
+				
 			}
-		} 
-		else if (e.type == SDL_KEYUP) {
-			key_lifted = true;
 		}
 	}
 }

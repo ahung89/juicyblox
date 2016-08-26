@@ -1,23 +1,36 @@
-#include <grid.h>
 #include <stdio.h>
 #include <block.h>
+#include <stdlib.h>
+#include <algorithm>
 
-int Block::MillisPerDrop = 800;
+static int MillisPerDrop = 800;
+static std::vector<BlockShape> BlockShapes = {
+	{{0, 0}, {{-1.5, -.5}, {-.5, -.5}, {.5, -.5}, {1.5, -.5}}}, // Line
+	{{.5, .5}, {{-1, -1}, {-1, 0}, {0, 0}, {1, 0}}},            // L
+	{{.5, .5}, {{-1, 0}, {0, 0}, {1, 0}, {1, -1}}},             // Reverse L
+	{{0, 0}, {{-.5, -.5}, {-.5, .5}, {.5, -.5}, {.5, .5}}},     // Square
+	{{.5, .5}, {{-1, 0}, {0, 0}, {0, -1}, {1, -1}}},            // Tut
+	{{.5, .5}, {{-1, 0}, {0, 0}, {0, -1}, {1, 0}}},             // Hat
+	{{.5, .5}, {{-1, -1}, {0, -1}, {0, 0}, {1, 0}}}             // Reverse Tut
+};
+static float BlockCenterOffset = .5;
 
 Block::Block(Grid* grid) : 
-	last_drop_time{0},
-	pos{5, 5},
-	offsets{{0, 0}, {0, 1}, {0, 2}, {0, 3}},
+	last_drop_time(0),
 	grid {grid}
-	{}
+{
+	BlockShape shape = BlockShapes[rand() % BlockShapes.size()];
+	center = {shape.origin_offset.x + 5, shape.origin_offset.y + 1};
+	offsets = shape.offsets;
+}
 
 void Block::Update(Uint32 ticks)
 {
 	if (ticks >= last_drop_time + MillisPerDrop)
 	{
-		if (!CheckCollide(pos.x, pos.y + 1, offsets))
+		if (!CheckCollide(center.x, center.y + 1, offsets))
 		{
-			pos.y += 1;
+			center.y += 1;
 			last_drop_time = ticks;
 		}
 		else 
@@ -31,23 +44,24 @@ void Block::Render(SDL_Renderer* renderer)
  {
 	SDL_SetRenderDrawColor(renderer, 0x00, 0xFF, 0x00, 0xFF);
 
-	std::vector<SDL_Point>::iterator it;
+	std::vector<Point>::iterator it;
 	SDL_Rect cellRect;
 
 	for (it = offsets.begin(); it != offsets.end(); it++)
 	{	
-		cellRect = {(pos.x + it->x) * Grid::CellDimension, (pos.y + it->y) * Grid::CellDimension,
-			Grid::CellDimension, Grid::CellDimension};
+		cellRect = {(center.x + it->x - BlockCenterOffset) * Grid::CellDimension, (center.y + it->y - BlockCenterOffset)
+		 * Grid::CellDimension, Grid::CellDimension, Grid::CellDimension};
 		SDL_RenderFillRect(renderer, &cellRect);
 	}
 }
 
-bool Block::CheckCollide(int x, int y, std::vector<SDL_Point> offsets)
+bool Block::CheckCollide(float x, float y, std::vector<Point> offsets_to_check)
 {
-	std::vector<SDL_Point>::iterator it;
-	for (it = offsets.begin(); it!= offsets.end(); it++) 
+	std::vector<Point>::iterator it;
+	for (it = offsets_to_check.begin(); it != offsets_to_check.end(); it++) 
 	{
-		int currX = x + it->x, currY = y + it->y;
+		int currX = x + it->x - BlockCenterOffset;
+		int currY = y + it->y - BlockCenterOffset;
 		if (!grid->InGridBounds(currX, currY) || grid->GetVal(currX, currY) != 0)
 		{
 			return true;
@@ -58,6 +72,21 @@ bool Block::CheckCollide(int x, int y, std::vector<SDL_Point> offsets)
 
 void Block::MoveLaterally(int dir)
 {
-	if (!CheckCollide(pos.x + dir, pos.y, offsets))
-		pos.x += dir;
+	if (!CheckCollide(center.x + dir, center.y, offsets))
+		center.x += dir;
+}
+
+void Block::Rotate()
+{
+	std::vector<Point> new_offsets;
+	std::for_each(offsets.begin(), offsets.end(), [&] (Point p) { new_offsets.push_back({-p.y, p.x}); });
+	if (!CheckCollide(center.x, center.y, new_offsets)) {
+		offsets = new_offsets;
+	}
+}
+
+void Block::Drop()
+{
+	if (!CheckCollide(center.x, center.y + 1, offsets))
+		center.y++;
 }
