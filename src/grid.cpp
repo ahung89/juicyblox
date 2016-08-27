@@ -53,15 +53,6 @@ bool Grid::InGridBounds(int x, int y)
 		   && y < grid.size();
 }
 
-void Grid::SetViewport(SDL_Renderer* renderer) {
-	SDL_Rect viewport;
-	viewport.x = 0;
-	viewport.y = 0;
-	viewport.w = SCREEN_WIDTH * (2./3.); // If you don't make these float literals, it'll be 0
-	viewport.h = SCREEN_HEIGHT;
-	SDL_RenderSetViewport(renderer, &viewport);
-}
-
 void Grid::SetVal(int x, int y, int val)
 {
 	grid[y][x] = val;

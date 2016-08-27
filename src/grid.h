@@ -18,6 +18,5 @@ public:
 	static int NumRows;
 	static int NumCols;
 private:
-	void SetViewport(SDL_Renderer*);
 	std::vector<std::vector<int>> grid;
 };
