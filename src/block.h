@@ -20,9 +20,16 @@ private:
 	// Oh cool the params don't need names
 	bool CheckCollide(float, float, std::vector<Point>);
 	void Reset();
+	void RenderBlock(SDL_Renderer*, std::vector<Point>, Point, int);
+	void RenderPreview(SDL_Renderer*);
+
 	Point center;
 	Grid* grid;
 	std::vector<Point> offsets;
 	Color color;
+
+	// For the next block preview window
 	int last_drop_time;
+	Point preview_location = {13, 2};
+	BlockShape next_shape;
 };

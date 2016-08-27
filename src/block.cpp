@@ -19,15 +19,19 @@ Block::Block(Grid* grid) :
 	last_drop_time(0),
 	grid {grid}
 {
-	Reset();
+	next_shape = BlockShapes[rand() % BlockShapes.size()];
+	BlockShape curr_shape = BlockShapes[rand() % BlockShapes.size()];
+	center = {curr_shape.origin_offset.x + 5, curr_shape.origin_offset.y + 1};
+	offsets = curr_shape.offsets;
+	color = curr_shape.color;
 }
 
 void Block::Reset()
 {
-	BlockShape shape = BlockShapes[rand() % BlockShapes.size()];
-	center = {shape.origin_offset.x + 5, shape.origin_offset.y + 1};
-	offsets = shape.offsets;
-	color = shape.color;
+	center = {next_shape.origin_offset.x + 5, next_shape.origin_offset.y + 1};
+	offsets = next_shape.offsets;
+	color = next_shape.color;
+	next_shape = BlockShapes[rand() % BlockShapes.size()];
 }
 
 void Block::Update(Uint32 ticks)
@@ -40,6 +44,12 @@ void Block::Update(Uint32 ticks)
 
 void Block::Render(SDL_Renderer* renderer)
  {
+ 	RenderPreview(renderer);
+ 	RenderBlock(renderer, offsets, center, color);
+ }
+
+void Block::RenderBlock(SDL_Renderer* renderer, std::vector<Point> offsets, Point center, int color)
+{
  	ColorValues color_values = ColorMap[color];
 
 	std::vector<Point>::iterator it;
@@ -52,6 +62,12 @@ void Block::Render(SDL_Renderer* renderer)
 		SDL_SetRenderDrawColor(renderer, color_values.r, color_values.g, color_values.b, 0xFF);
 		SDL_RenderFillRect(renderer, &cell_rect);
 	}
+
+}
+
+void Block::RenderPreview(SDL_Renderer* renderer)
+{
+	RenderBlock(renderer, next_shape.offsets, preview_location, next_shape.color);
 }
 
 bool Block::CheckCollide(float x, float y, std::vector<Point> offsets_to_check)
